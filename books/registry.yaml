@@ -1,0 +1,18 @@
+# Authoritative index of book_id ↔ project ↔ book_root.
+# Only Studio Administrator / administrative create workflows may modify this file.
+# Normal book agents: read-only.
+schema_version: "1.0.0"
+books:
+  - book_id: "2e64d4cf-7b56-42f2-9aaa-6934fe48dd0d"
+    working_title: "The Last Box"
+    book_slug: "the-last-box"
+    book_root: "books/the-last-box"
+    project_id: "51909d1d-2f17-4748-bc81-a9641f41a640"
+    format: "short_story"
+    workflow_profile: "short_story"
+    controlled_test: true
+    project_status: "seeded"
+    studio_version: "0.1.0"
+    series_id: null
+    created_date: "2026-09-18"
+    current_approved_commit: null

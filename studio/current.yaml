@@ -1,0 +1,5 @@
+# Points at the latest published studio package.
+# Individual books pin a concrete version and do not auto-upgrade.
+current_version: "0.1.0"
+repository: "https://github.com/MrStewood/AI-Fiction-Library"
+updated: "2026-09-18"

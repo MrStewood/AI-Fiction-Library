@@ -1,0 +1,116 @@
+# Canonical manuscript length profiles for Ghost in the Manuscript.
+# Shared tools/agents MUST read this file (or book.yaml fields derived from it).
+# Do not hardcode book-specific titles/characters here.
+
+schema_version: "0.1.0"
+
+# Classification boundaries (inclusive max except where noted):
+#   short_story:  < 7,500
+#   novelette:    7,500 – 17,500
+#   novella:      17,500 – 40,000
+#   novel:        40,000+
+
+profiles:
+  short_story:
+    label: "Short Story"
+    word_min: 1
+    word_max: 7499
+    default_target: 4500
+    target_word_min: 4000
+    target_word_max: 5000
+    typical_chapters_min: 0
+    typical_chapters_max: 1
+    typical_scenes_min: 4
+    typical_scenes_max: 6
+    scene_min_words: 400
+    scene_target_words: 750
+    chapters_required: false
+    beat_sheet_mode: "compressed"
+    continuity_every_unit: true
+    craft_audit_every_unit: true
+    # Early reader checkpoint for short stories (not end-only).
+    target_reader_cadence: "after_opening"
+    early_reader_after_scene: 1
+    max_cast: 4
+    max_locations: 3
+    subplots: "none_unless_essential"
+    notes: >
+      Pilot default: 4,000–5,000 words across ~4–6 scenes; one central conflict;
+      minimal cast/locations; no subplot unless essential. Target-reader checkpoint
+      after the opening scene (no later than scene 2). Scene contracts still required.
+
+  novelette:
+    label: "Novelette"
+    word_min: 7500
+    word_max: 17500
+    default_target: 12000
+    typical_chapters_min: 3
+    typical_chapters_max: 7
+    typical_scenes_min: 8
+    typical_scenes_max: 18
+    scene_min_words: 500
+    scene_target_words: 800
+    chapters_required: true
+    beat_sheet_mode: "standard"
+    continuity_every_unit: true
+    craft_audit_every_unit: true
+    target_reader_cadence: "midpoint_and_end"
+    notes: >
+      One central conflict; at most one minor subplot. Good default for rapid
+      process iteration without novella overhead.
+
+  novella:
+    label: "Novella"
+    word_min: 17500
+    word_max: 40000
+    default_target: 30000
+    typical_chapters_min: 8
+    typical_chapters_max: 14
+    typical_scenes_min: 20
+    typical_scenes_max: 40
+    scene_min_words: 800
+    scene_target_words: 1000
+    chapters_required: true
+    beat_sheet_mode: "standard"
+    continuity_every_unit: true
+    craft_audit_every_unit: true
+    target_reader_cadence: "chapter_or_sequence"
+    notes: >
+      Concentrate; avoid novel sprawl.
+
+  novel:
+    label: "Novel"
+    word_min: 40000
+    word_max: null
+    default_target: 85000
+    typical_chapters_min: 15
+    typical_chapters_max: 40
+    typical_scenes_min: 40
+    typical_scenes_max: 120
+    scene_min_words: 900
+    scene_target_words: 1200
+    chapters_required: true
+    beat_sheet_mode: "layered"
+    continuity_every_unit: true
+    craft_audit_every_unit: true
+    target_reader_cadence: "chapter_or_sequence"
+    notes: >
+      Layer without filler. Enable only after short-form/novella process is stable.
+
+aliases:
+  short: short_story
+  story: short_story
+  ss: short_story
+  short-story: short_story
+  short_story: short_story
+  novelette: novelette
+  novella: novella
+  novel: novel
+  book: novel
+
+selection_rules:
+  - Prefer explicit user/format request in the original prompt.
+  - Else choose the smallest profile whose range covers the requested target.
+  - If only a vibe is given ("short", "quick read"), default to short_story target 5000.
+  - If "novella" / ~30k mentioned, use novella.
+  - Record chosen profile + target + scene_min_words into book.yaml and Project Manifest at Intake.

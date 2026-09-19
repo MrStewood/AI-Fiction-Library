@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "craft_audit.schema.json",
+  "title": "Scene craft / developmental audit",
+  "type": "object",
+  "required": [
+    "unit",
+    "verdict",
+    "approved",
+    "desire_to_continue",
+    "quotes",
+    "findings",
+    "revision_directive",
+    "summary"
+  ],
+  "properties": {
+    "unit": {
+      "type": "string",
+      "pattern": "^SCENE-\\d+$"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "REVISE"
+      ]
+    },
+    "approved": {
+      "type": "boolean"
+    },
+    "desire_to_continue": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "quotes": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "criterion",
+          "quotes",
+          "reader_effect",
+          "minimum_correction"
+        ],
+        "properties": {
+          "criterion": {
+            "type": "string",
+            "enum": [
+              "scene_necessity",
+              "agency",
+              "causality",
+              "pacing",
+              "sensory_grounding",
+              "dialogue_subtext",
+              "prose_quality",
+              "contract_canon"
+            ]
+          },
+          "quotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reader_effect": {
+            "type": "string"
+          },
+          "minimum_correction": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "revision_directive": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "PASS"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approved": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "verdict": {
+            "const": "REVISE"
+          }
+        },
+        "required": [
+          "verdict"
+        ]
+      },
+      "then": {
+        "properties": {
+          "approved": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}

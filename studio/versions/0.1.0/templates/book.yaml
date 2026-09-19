@@ -1,0 +1,31 @@
+book_id: "immutable-unique-id"
+working_title: "Working Title"
+# format / workflow_profile: short_story | novelette | novella | novel
+format: "novella"
+status: "development"
+repository: "https://github.com/MrStewood/AI-Fiction-Library"
+book_root: "books/example-book"
+project_id: "immutable-board-project-id"
+studio_version: "0.1.0"
+workflow_profile: "novella"
+default_branch: "main"
+current_stage: "intake"
+current_approved_commit: null
+target_word_count: 30000
+target_word_min: 17500
+target_word_max: 40000
+scene_min_words: 800
+scene_target_words: 1000
+typical_scenes_min: 20
+typical_scenes_max: 40
+typical_chapters_min: 8
+typical_chapters_max: 14
+chapters_required: true
+series: null
+# Pilot / short-story fields (from LENGTH_PROFILES when format=short_story)
+target_reader_cadence: null   # after_opening | midpoint_and_end | chapter_or_sequence | end_only
+early_reader_after_scene: null  # 1 or 2 for short_story pilot
+max_cast: null
+max_locations: null
+subplots: null   # none_unless_essential | limited | open
+controlled_test: false

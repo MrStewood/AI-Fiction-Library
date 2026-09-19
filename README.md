@@ -13,20 +13,20 @@ Do not edit inside the AUTO-PROGRESS markers.
 ### Now reading: The Last Box
 
 - **Format:** short_story
-- **Stage:** Creative Brief (17%)
+- **Stage:** Premise Package (25%)
 - **Manuscript words:** 93
 - **Path:** [`books/the-last-box/`](books/the-last-box/)
-- **Last synced:** 2026-09-19T00:51Z
+- **Last synced:** 2026-09-19T01:23Z
 
 #### Stage timeline
 
-✅ Intake → **▶ Creative Brief** → ⬜ Premise Package → ⬜ Story Bible + Ending → ⬜ Beat Sheet → ⬜ Scene Outline → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
+✅ Intake → ✅ Creative Brief → **▶ Premise Package** → ⬜ Story Bible + Ending → ⬜ Beat Sheet → ⬜ Scene Outline → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
 
 ### In progress
 
 | Book | Format | Stage | Progress | Words | Scenes | Path |
 |---|---|---|---:|---:|---:|---|
-| The Last Box | short_story | Creative Brief | 17% | 93 | 0 | [`books/the-last-box/`](books/the-last-box/) |
+| The Last Box | short_story | Premise Package | 25% | 93 | 0 | [`books/the-last-box/`](books/the-last-box/) |
 
 ### Completed
 

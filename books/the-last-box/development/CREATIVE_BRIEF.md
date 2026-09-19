@@ -2,13 +2,13 @@
 schema_version: "0.1.0"
 artifact_id: "creative-brief"
 title: "Creative Brief"
-status: "PROPOSED"
+status: "APPROVED"
 version: 1
 canonical: false
 authoring_agent: "story_architect"
 created_at: "2026-09-18"
-approved_by: null
-approved_at: null
+approved_by: "managing_editor"
+approved_at: "2026-09-19"
 depends_on: ["original-prompt", "requirements-ledger"]
 book_id: "cd35e42f-5e5d-4046-b80b-e8780a33fb20"
 project_id: "46fa8bdb-1307-4083-85a7-ea26cb13144e"

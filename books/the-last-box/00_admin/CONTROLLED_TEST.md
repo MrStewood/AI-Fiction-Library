@@ -10,8 +10,8 @@ created_at: "2026-09-18"
 approved_by: "managing_editor"
 approved_at: "2026-09-18"
 depends_on: []
-book_id: "2e64d4cf-7b56-42f2-9aaa-6934fe48dd0d"
-project_id: "51909d1d-2f17-4748-bc81-a9641f41a640"
+book_id: "cd35e42f-5e5d-4046-b80b-e8780a33fb20"
+project_id: "46fa8bdb-1307-4083-85a7-ea26cb13144e"
 ---
 
 # Controlled Test Policy
@@ -36,6 +36,14 @@ Once the run starts:
 
 ## Preserve evidence
 Keep all drafts, failed reviews, revision directives, and rejected artifacts. Do not delete the pilot if it fails.
+
+## Board / confirmation bans (HARD)
+1. **Never** call `request_confirmation` for stage continuation, creative decisions, or pipeline gates. The board is observational.
+2. **Never** park an issue in `todo` or `in_progress` without a concrete assignee and next-action comment.
+3. **Never** PATCH the parent BOOK to `in_review` for stage continuation.
+4. **Never** PATCH the parent BOOK to `done` except through Final Auditor release path (`release/` on disk + `studio handoff --after final_audit`).
+5. **Studio CLI preference**: use `studio.py` helpers (`pack`, `handoff`, `watchdog`, `verify-done`, `create-issue`, `reassign`, `reopen-parent`). On CLI failure: comment error → mark `blocked` → EXIT. Do **not** create a raw `curl` workaround issue.
+6. **If assigned issue already done**: EXIT immediately — no zombie continuation.
 
 ## Metrics + postmortem
 Maintain `00_admin/EXPERIMENT_METRICS.md` during the run and `00_admin/PILOT_POSTMORTEM.md` at the end.

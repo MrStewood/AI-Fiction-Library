@@ -10,17 +10,17 @@ created_at: "2026-09-18"
 approved_by: "managing_editor"
 approved_at: "2026-09-18"
 depends_on: []
-book_id: "2e64d4cf-7b56-42f2-9aaa-6934fe48dd0d"
-project_id: "51909d1d-2f17-4748-bc81-a9641f41a640"
+book_id: "cd35e42f-5e5d-4046-b80b-e8780a33fb20"
+project_id: "46fa8bdb-1307-4083-85a7-ea26cb13144e"
 ---
 
 # Decision Log
 
 ## DEC-001
-- Date / stage:
-- Proposed change:
-- Approving authority:
-- Reason:
-- Alternatives rejected:
-- Affected artifacts:
-- Downstream invalidation / regeneration:
+- Date / stage: 2026-09-18 / creative_brief
+- Proposed change: Locked the unspoken event class to a parental confession or disclosure that reshaped the child's understanding of the family and was never addressed, and reframed the box as the catalyst/pressure source that forces confrontation rather than as puzzle inventory or a MacGuffin.
+- Approving authority: pending Managing Editor
+- Reason: the brief needs a single precise event class to prevent drift during premise/bible/beats, and the box must drive relational pressure rather than mystery mechanics.
+- Alternatives rejected: leaving the event class vague; treating the box as clue-bearing treasure; converting the house into a supernatural or conspiracy device.
+- Affected artifacts: creative brief, and downstream premise, story bible, and beat sheet drafts
+- Downstream invalidation / regeneration: any later brief revision will require re-check of premise/beat causality and the mandatory checklist gates

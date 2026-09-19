@@ -16,7 +16,7 @@ Do not edit inside the AUTO-PROGRESS markers.
 - **Stage:** Premise Package (25%)
 - **Manuscript words:** 93
 - **Path:** [`books/the-last-box/`](books/the-last-box/)
-- **Last synced:** 2026-09-19T01:26Z
+- **Last synced:** 2026-09-19T01:27Z
 
 #### Stage timeline
 

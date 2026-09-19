@@ -1,14 +1,14 @@
-book_id: "cd35e42f-5e5d-4046-b80b-e8780a33fb20"
+book_id: "d76f728c-2b4a-4665-b286-b23395129738"
 working_title: "The Last Box"
 format: "short_story"
 status: "development"
 repository: "https://github.com/MrStewood/AI-Fiction-Library"
 book_root: "books/the-last-box"
-project_id: "46fa8bdb-1307-4083-85a7-ea26cb13144e"
+project_id: "cd3bd67d-1512-4284-abc1-19ce59a69fb7"
 studio_version: "0.1.0"
 workflow_profile: "short_story"
 default_branch: "main"
-current_stage: "premise"
+current_stage: "intake"
 current_approved_commit: null
 target_word_count: 4500
 target_word_min: 4000

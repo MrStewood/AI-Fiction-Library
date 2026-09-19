@@ -1,11 +1,25 @@
 ---
+schema_version: "0.1.0"
 artifact_id: "current-stage"
 title: "Current Stage"
 status: "APPROVED"
+version: 1
+canonical: false
+authoring_agent: "managing_editor"
+created_at: "2026-09-18"
 approved_by: "managing_editor"
-approved_at: "2026-09-19"
+approved_at: "2026-09-18"
+depends_on: []
+book_id: "d76f728c-2b4a-4665-b286-b23395129738"
+project_id: "cd3bd67d-1512-4284-abc1-19ce59a69fb7"
 ---
+
 # Current Stage
-- Stage: premise
-- Status: in_progress
-- Notes: studio handoff after creative_brief: GHO-167 + GHO-168
+
+- Stage: intake
+- Notes: seeded by studio start-book
+- Active issue:
+- Assignee:
+- Blockers:
+- Next planned stage:
+- Notes:

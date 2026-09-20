@@ -1,24 +1,14 @@
 ---
-schema_version: "0.1.0"
 artifact_id: "current-stage"
 title: "Current Stage"
 status: "APPROVED"
-version: 1
-canonical: false
-authoring_agent: "studio_cli"
-created_at: "2026-09-20"
 approved_by: "managing_editor"
 approved_at: "2026-09-20"
-depends_on: []
-book_id: "df9327a5-892d-42c7-ad5a-8340585034c1"
-project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
 ---
-
 # Current Stage
-
-- Stage: drafting (next unit)
-- Active issue: none
-- Assignee: Drafting Author
+- Stage: full_draft_review
+- Status: ready for assignment
+- Notes: All 5 scenes drafted (3958 words total). Atomic handoff: GHO-199 (git sync) + GHO-198 (Full-draft review → Revision Editor).
+- Active issue: GHO-198
+- Assignee: Revision Editor
 - Blockers: none
-- Parallel: none (--no-git)
-- Notes: Atomic handoff via `studio handoff` at 2026-09-20T03:08Z. Parent stays in_progress.

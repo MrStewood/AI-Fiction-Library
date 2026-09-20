@@ -10,10 +10,10 @@ books:
     project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
     format: "short_story"
     project_status: "active"
-    current_stage: "drafting"
+    current_stage: "full_draft_review"
     studio_version: "0.1.0"
     series_id: null
     created_date: "2026-09-19"
-    manuscript_word_count: 2013
-    last_synced_at: "2026-09-20T10:34Z"
+    manuscript_word_count: 4051
+    last_synced_at: "2026-09-20T11:02Z"
     current_approved_commit: null

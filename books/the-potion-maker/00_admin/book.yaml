@@ -8,7 +8,7 @@ project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
 studio_version: "0.1.0"
 workflow_profile: "short_story"
 default_branch: "main"
-current_stage: "intake"
+current_stage: "creative_brief"
 current_approved_commit: null
 target_word_count: 4500
 target_word_min: 4000

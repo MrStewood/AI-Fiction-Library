@@ -14,10 +14,10 @@ Do not edit inside the AUTO-PROGRESS markers.
 
 - **Format:** short_story
 - **Stage:** Drafting (58%)
-- **Manuscript words:** 1290
-- **Scenes on disk:** 1 (through SCENE-001)
+- **Manuscript words:** 2013
+- **Scenes on disk:** 2 (through SCENE-002)
 - **Path:** [`books/the-potion-maker/`](books/the-potion-maker/)
-- **Last synced:** 2026-09-20T03:04Z
+- **Last synced:** 2026-09-20T10:34Z
 
 #### Stage timeline
 
@@ -27,7 +27,7 @@ Do not edit inside the AUTO-PROGRESS markers.
 
 | Book | Format | Stage | Progress | Words | Scenes | Path |
 |---|---|---|---:|---:|---:|---|
-| The Potion Maker | short_story | Drafting | 58% | 1290 | 1 | [`books/the-potion-maker/`](books/the-potion-maker/) |
+| The Potion Maker | short_story | Drafting | 58% | 2013 | 2 | [`books/the-potion-maker/`](books/the-potion-maker/) |
 
 ### Completed
 

@@ -16,9 +16,9 @@ project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
 
 # Current Stage
 
-- Stage: drafting (SCENE-002)
-- Active issue: GHO-193
+- Stage: drafting (next unit)
+- Active issue: none
 - Assignee: Drafting Author
 - Blockers: none
-- Parallel: GHO-192 — Git sync after target_reader
-- Notes: Atomic handoff via `studio handoff` at 2026-09-20T03:03Z. Parent stays in_progress.
+- Parallel: none (--no-git)
+- Notes: Atomic handoff via `studio handoff` at 2026-09-20T03:08Z. Parent stays in_progress.

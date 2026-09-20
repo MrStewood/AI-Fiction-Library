@@ -91,7 +91,7 @@ Maren said nothing. She picked up the mortar and pestle and began to measure the
 
 "Those are the same thing."
 
-Elias looked at her. For the first time, his expression shifted, something flickering behind the flatness. "Are you going to help me, or are you going to lecture me?"
+Elias looked at her, expression shifting for the first time. "Are you going to help me, or lecture me?"
 
 Maren set down the pestle. She looked at him across the counter. The lamp above the register threw its warm circle on the wood between them.
 
@@ -109,17 +109,17 @@ Elias said nothing.
 
 "Do you?"
 
-The question hung in the air between them. The shop was very quiet. Outside, the last light had gone, and the windows were black.
+The question hung in the air. The shop was very quiet.
 
-Elias looked at the counter, at the ingredients Maren had laid out, at her hands resting on the edge of the counter, waiting.
+Elias looked at the laid-out ingredients and at her hands waiting on the counter.
 
 "She used to sing," he said. "When she was cooking. She'd sing these stupid songs — made-up words, melodies that didn't go anywhere." He paused. "I can't remember the last time I heard her sing."
 
 Maren said nothing.
 
-"I can't remember the last thing she said to me. I can't remember —" His voice broke, just for a moment, then flattened again. "I can't remember the last time I told her I loved her."
+"I can't remember the last thing she said to me. I can't remember —" His voice broke, then flattened. "I can't remember the last time I told her I loved her."
 
-Maren reached across the counter and placed her hand over his. Just for a moment. Then she pulled it back.
+Maren reached across the counter and laid her hand over his. Just for a moment. Then she drew it back.
 
 "I won't make it tonight," she said. "Drink water. Eat something. Come back tomorrow at eight."
 
@@ -127,7 +127,7 @@ Maren reached across the counter and placed her hand over his. Just for a moment
 
 "That's my answer."
 
-Elias looked at her. His expression was still flat, but something raw had opened behind it.
+Elias looked at her. Something raw had opened behind the flatness.
 
 "You'll make it?" he asked.
 
@@ -139,11 +139,11 @@ He stood. The stool scraped against the floor. He turned toward the door, then s
 
 "Don't thank me yet," Maren said.
 
-Elias opened the door. The bell didn't ring. He stepped out into the dark, and the door closed behind him.
+Elias opened the door. He stepped out into the dark, and the door closed behind him.
 
 Maren stood behind the counter for a long time. The shop was quiet. The lamp above the register threw its warm circle on the wood. The ingredients lay on the counter, waiting.
 
-She looked at the shelf above the register, at the bottle she never touched — the one she'd made for herself years ago and never used. The glass was dark, the label yellowed to illegibility. She knew what it held. She didn't need the label.
+She looked at the shelf above the register, at the bottle she never touched — the one she'd made for herself years ago and never used. The glass was dark, the label yellowed. She knew what it held.
 
 She turned off the lamp and stood in the dark. The shop smelled the way it always did. The street outside was quiet.
 

@@ -13,20 +13,20 @@ Do not edit inside the AUTO-PROGRESS markers.
 ### Now reading: The Potion Maker
 
 - **Format:** short_story
-- **Stage:** Story Bible + Ending (33%)
+- **Stage:** Scene Outline (50%)
 - **Manuscript words:** 93
 - **Path:** [`books/the-potion-maker/`](books/the-potion-maker/)
-- **Last synced:** 2026-09-20T02:24Z
+- **Last synced:** 2026-09-20T02:38Z
 
 #### Stage timeline
 
-✅ Intake → ✅ Creative Brief → ✅ Premise Package → **▶ Story Bible + Ending** → ⬜ Beat Sheet → ⬜ Scene Outline → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
+✅ Intake → ✅ Creative Brief → ✅ Premise Package → ✅ Story Bible + Ending → ✅ Beat Sheet → **▶ Scene Outline** → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
 
 ### In progress
 
 | Book | Format | Stage | Progress | Words | Scenes | Path |
 |---|---|---|---:|---:|---:|---|
-| The Potion Maker | short_story | Story Bible + Ending | 33% | 93 | 0 | [`books/the-potion-maker/`](books/the-potion-maker/) |
+| The Potion Maker | short_story | Scene Outline | 50% | 93 | 0 | [`books/the-potion-maker/`](books/the-potion-maker/) |
 
 ### Completed
 

@@ -2,5 +2,17 @@
 # Only Studio Administrator / administrative create workflows may modify this file.
 # Normal book agents: read-only.
 schema_version: "1.0.0"
-books: []
-
+books:
+  - book_id: "df9327a5-892d-42c7-ad5a-8340585034c1"
+    working_title: "The Potion Maker"
+    book_slug: "the-potion-maker"
+    book_root: "books/the-potion-maker"
+    project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
+    format: "short_story"
+    workflow_profile: "short_story"
+    controlled_test: true
+    project_status: "seeded"
+    studio_version: "0.1.0"
+    series_id: null
+    created_date: "2026-09-19"
+    current_approved_commit: null

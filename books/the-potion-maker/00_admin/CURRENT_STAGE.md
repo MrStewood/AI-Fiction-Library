@@ -6,6 +6,9 @@ approved_by: "managing_editor"
 approved_at: "2026-09-20"
 ---
 # Current Stage
-- Stage: creative_brief
-- Status: in_progress
-- Notes: studio handoff after intake: GHO-178 + GHO-179
+- Stage: premise
+- Status: ready for assignment
+- Notes: Creative Brief approved (ME checklist PASS). Atomic handoff: GHO-180 (git sync) + GHO-181 (premise → Story Architect).
+- Active issue: GHO-181
+- Assignee: Story Architect
+- Blockers: none

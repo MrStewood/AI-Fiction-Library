@@ -8,7 +8,7 @@ project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
 studio_version: "0.1.0"
 workflow_profile: "short_story"
 default_branch: "main"
-current_stage: "creative_brief"
+current_stage: "premise"
 current_approved_commit: null
 target_word_count: 4500
 target_word_min: 4000
@@ -27,5 +27,5 @@ max_cast: 4
 max_locations: 3
 subplots: "none_unless_essential"
 controlled_test: true
-last_synced_at: "2026-09-20T02:19Z"
+last_synced_at: "2026-09-20T02:22Z"
 manuscript_word_count: 93

@@ -1,0 +1,62 @@
+{
+  "unit": "SCENE-001",
+  "verdict": "PASS",
+  "approved": true,
+  "desire_to_continue": 4,
+  "findings": [
+    {
+      "criterion": "scene_necessity",
+      "quotes": [
+        "\"The grief potion,\" he said.",
+        "\"You'll make it?\" he asked.",
+        "\"I'll make it.\""
+      ],
+      "reader_effect": "The scene earns its place by shifting from routine commerce to a personal, specific request. It functions as a clean inciting incident rather than throat-clearing.",
+      "minimum_correction": "Optional tightening: ensure no more than one explicit rules restatement after the initial terms are named."
+    },
+    {
+      "criterion": "agency",
+      "quotes": [
+        "She could have refused.",
+        "\"I'm going to help you,\" she said."
+      ],
+      "reader_effect": "Maren's choice to stay engaged feels active rather than passive. The moment of optional refusal is small but necessary.",
+      "minimum_correction": "No correction required; keep the refusal option visible but brief."
+    },
+    {
+      "criterion": "pacing",
+      "quotes": [
+        "\"You'll remember her name, her face, what happened. You won't feel it.\"",
+        "\"You'll look at the spot where she slept and feel nothing.\""
+      ],
+      "reader_effect": "The forward drive is mostly solid, but the second pass over the potion's cost repeats what the reader already understands. It creates a slight stall right before the scene should lock in.",
+      "minimum_correction": "Cut or compress the second rules block so the emotional disclosure and the deferred promise stay close together."
+    },
+    {
+      "criterion": "sensory_grounding",
+      "quotes": [
+        "Rosemary. Vinegar. The faint mineral tang of copper.",
+        "Rosemary. Vinegar. The metallic edge of something she couldn't quite name."
+      ],
+      "reader_effect": "The shop feels tactile and real, which is good. But the near-duplicate smell list reads like a looping motif rather than an escalating image.",
+      "minimum_correction": "Consolidate into one definitive sensory anchor in this section; reserve echo for a structural return later."
+    },
+    {
+      "criterion": "contract_canon",
+      "quotes": [
+        "\"Drink water,\" she said. \"Eat something. Come back tomorrow at eight.\""
+      ],
+      "reader_effect": "The ending preserves tension, but the deferral slightly softens the scene's contract claim that her equilibrium is broken and the engine has started.",
+      "minimum_correction": "Anchor the postponement in a concrete procedural reason, or make it read as a deliberate refusal rather than an ambiguous instruction."
+    }
+  ],
+  "quotes": [
+    "\"The grief potion,\" he said.",
+    "Rosemary. Vinegar. The faint mineral tang of copper.",
+    "Rosemary. Vinegar. The metallic edge of something she couldn't quite name.",
+    "\"You'll look at the spot where she slept and feel nothing.\"",
+    "\"Drink water,\" she said. \"Eat something. Come back tomorrow at eight.\""
+  ],
+  "revision_directive": "",
+  "summary": "This is a functional opening scene with real tension. The main weaknesses are minor and craft-level rather than structural: a repeated smell motif, a second rules recap that blunts momentum, and an ending that needs slightly sharper causal motivation for its deferral. None of these require redraft; a targeted line edit is enough."
+}

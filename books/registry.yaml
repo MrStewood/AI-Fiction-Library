@@ -3,3 +3,4 @@
 # Normal book agents: read-only.
 schema_version: "1.0.0"
 books: []
+

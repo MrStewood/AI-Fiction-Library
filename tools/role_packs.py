@@ -295,7 +295,16 @@ WORK_PACKS: Dict[str, Dict[str, Any]] = {
         "mission": (
             "Audience checkpoint. For short-story early gate after opening (≤ scene 2): "
             "verdict must be continue | revise_opening | re_outline | stop_project. "
-            "Diagnose only — no prose rewrite."
+            "Diagnose only — no prose rewrite.\n\n"
+            "CRITICAL: You must write TWO files and verify BOTH:\n"
+            "1. `reviews/{unit}_target_reader.md` — your detailed review\n"
+            "2. `reviews/EARLY_READER_CHECKPOINT.md` — summary with verdict\n\n"
+            "Run verify-done TWICE before marking issue done:\n"
+            "```\n"
+            "studio verify-done --path <abs_ws>/reviews/{unit}_target_reader.md\n"
+            "studio verify-done --path <abs_ws>/reviews/EARLY_READER_CHECKPOINT.md\n"
+            "```\n"
+            "Both must pass before you PATCH done."
         ),
     },
     "revision": {

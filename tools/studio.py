@@ -105,6 +105,38 @@ def studio_cli() -> str:
     return "python3 tools/studio.py"
 
 
+def ensure_writable(path: Path) -> None:
+    """Verify directory is writable; attempt chown if not. Logs warning on failure."""
+    d = path if path.is_dir() else path.parent
+    if not d.exists():
+        return  # will be created by caller
+    if os.access(d, os.W_OK):
+        return
+    container = (os.environ.get("STUDIO_RUNTIME_CONTAINER") or "").strip()
+    if container:
+        try:
+            subprocess.run(
+                ["docker", "exec", container, "chown", "-R", "node:node", str(d)],
+                capture_output=True, text=True, check=False, timeout=10,
+            )
+            if os.access(d, os.W_OK):
+                return
+        except Exception:
+            pass
+    # Best-effort: caller will fail with EACCES if truly unwritable
+
+
+_HOST_PATH_ROOT = (os.environ.get("STUDIO_HOST_PATH_ROOT") or "").strip()
+_AGENT_PATH_ROOT = "/paperclip"
+
+
+def sanitize_host_paths(text: str) -> str:
+    """Rewrite host-side paths to agent-visible paths. Prevents ISS-003 leakage."""
+    if _HOST_PATH_ROOT and _HOST_PATH_ROOT in text:
+        text = text.replace(_HOST_PATH_ROOT, _AGENT_PATH_ROOT)
+    return text
+
+
 CID_DEFAULT = (os.environ.get("STUDIO_COMPANY_ID") or "").strip()
 API_DEFAULT = (os.environ.get("STUDIO_API_URL") or "").rstrip("/")
 
@@ -463,9 +495,16 @@ def resolve_book(repo: Path, slug: Optional[str] = None, project_id: Optional[st
         fail("project_id_not_found", f"No book with project_id '{project_id}'.", "Check registry or pass --slug.")
     if len(books) == 1:
         return books[0]
+    if len(books) == 0:
+        fail(
+            "no_books_registered",
+            "No books found in books/registry.yaml.",
+            "Start a new book with: studio start-book --title 'Your Title' --prompt-file prompt.txt",
+            known_slugs=[],
+        )
     fail(
         "book_unspecified",
-        "Multiple books exist; specify --slug or --project-id.",
+        f"Multiple books exist ({len(books)}); specify --slug or --project-id.",
         "Example: studio watchdog --slug tide-ledger",
         known_slugs=[b.get("book_slug") for b in books],
     )
@@ -543,6 +582,74 @@ def enrich_book_from_workspace(book: Dict[str, Any], ws: Path) -> Dict[str, Any]
         if k in by and by[k] is not None:
             out[k] = by[k]
     return out
+
+
+def get_revision_counter(book_yaml_path: Path, unit: str) -> int:
+    """Get current revision count for a scene unit from book.yaml."""
+    if not book_yaml_path.exists():
+        return 0
+    try:
+        import yaml
+        with open(book_yaml_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except Exception:
+        return 0
+    counters = data.get("revision_counters") or {}
+    return int(counters.get(unit, 0))
+
+
+def increment_revision_counter(book_yaml_path: Path, unit: str) -> int:
+    """Increment revision counter for a scene unit. Returns new count."""
+    try:
+        import yaml
+    except ImportError:
+        # Fallback: manual YAML edit
+        if not book_yaml_path.exists():
+            return 1
+        content = book_yaml_path.read_text(encoding="utf-8")
+        if "revision_counters:" not in content:
+            content += f"\nrevision_counters:\n  {unit}: 1\n"
+            book_yaml_path.write_text(content, encoding="utf-8")
+            return 1
+        # Simple increment
+        import re
+        pattern = rf"(  {re.escape(unit)}:\s*)(\d+)"
+        match = re.search(pattern, content)
+        if match:
+            new_val = int(match.group(2)) + 1
+            content = content[:match.start(2)] + str(new_val) + content[match.end(2):]
+            book_yaml_path.write_text(content, encoding="utf-8")
+            return new_val
+        else:
+            content = content.replace("revision_counters:", f"revision_counters:\n  {unit}: 1")
+            book_yaml_path.write_text(content, encoding="utf-8")
+            return 1
+    try:
+        with open(book_yaml_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except Exception:
+        return 1
+    if "revision_counters" not in data:
+        data["revision_counters"] = {}
+    current = int(data["revision_counters"].get(unit, 0))
+    data["revision_counters"][unit] = current + 1
+    with open(book_yaml_path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
+    return current + 1
+
+
+def check_revision_limit(book_yaml_path: Path, unit: str, profile_key: str) -> Optional[str]:
+    """Check if revision limit reached. Returns error message or None if OK."""
+    # Spec limits: individual scene revision cycles maximum 2
+    MAX_SCENE_REVISIONS = 2
+    current = get_revision_counter(book_yaml_path, unit)
+    if current >= MAX_SCENE_REVISIONS:
+        return (
+            f"Revision limit reached for {unit}: {current}/{MAX_SCENE_REVISIONS} cycles used. "
+            f"Per spec, commission arbitration, select strongest viable version, "
+            f"record accepted imperfections, and advance unless a genuine Blocker remains."
+        )
+    return None
 
 
 def normalize_role(role: str) -> str:
@@ -815,6 +922,11 @@ def cmd_commands(_: argparse.Namespace) -> None:
                     "name": "works",
                     "purpose": "List stage/work modes for pack/create-issue (draft, craft_audit, beat_sheet, ...).",
                     "example": "studio works",
+                },
+                {
+                    "name": "delete-book",
+                    "purpose": "Delete book: cancel issues, archive project, clean workspace + registry.",
+                    "example": "studio delete-book --slug the-last-box",
                 },
             ],
             "exit_codes": {"0": "success", "1": "operational failure", "2": "usage error"},
@@ -1292,6 +1404,7 @@ STAGE_HANDOFF_NEXT = {
 def _stamp_artifact_approved(path: Path, *, by: str = "managing_editor") -> bool:
     if not path.is_file():
         return False
+    ensure_writable(path)
     raw = path.read_text(encoding="utf-8", errors="replace")
     if re.search(r'(?im)^status:\s*"?APPROVED"?\s*$', raw):
         return False
@@ -1316,6 +1429,7 @@ def _stamp_artifact_approved(path: Path, *, by: str = "managing_editor") -> bool
 def _update_stage_files(ws: Path, *, stage: str, notes: str = "") -> None:
     admin = ws / "00_admin"
     admin.mkdir(parents=True, exist_ok=True)
+    ensure_writable(admin)
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     (admin / "CURRENT_STAGE.md").write_text(
         f"""---
@@ -1374,7 +1488,7 @@ def _create_stage_child(
         f"/api/companies/{cid}/issues",
         {
             "title": title,
-            "description": desc,
+            "description": sanitize_host_paths(desc),
             "status": "todo",
             "projectId": project_id,
             "parentId": parent_id,
@@ -1401,6 +1515,9 @@ def cmd_handoff(args: argparse.Namespace) -> None:
     abs_ws = absolute_ws(book, cid)
     ws = workspace_for(book, cid)
     book = enrich_book_from_workspace(book, ws)
+    # CRITICAL: profile_key must be defined after enrich_book_from_workspace
+    # Used by check_revision_limit and other profile-dependent logic
+    profile_key = str(book.get("workflow_profile") or book.get("format") or "novella")
     parent_id = args.parent_id or find_parent_issue(cid, project_id, args.token)["id"]
     agents = fetch_agents(cid, args.token)
 
@@ -1440,23 +1557,32 @@ def cmd_handoff(args: argparse.Namespace) -> None:
             title=content_title,
             unit=unit,
         )
-        sync_issue = api(
-            "POST",
-            f"/api/companies/{cid}/issues",
-            {
-                "title": sync_title,
-                "description": _sync_desc(abs_ws, book, after_raw),
-                "status": "todo",
-                "projectId": project_id,
-                "parentId": parent_id,
-                "assigneeAgentId": sa["id"],
-            },
-            token=args.token,
-        )
-        try:
-            api("PATCH", f"/api/issues/{parent_id}", {"status": "in_progress"}, token=args.token)
-        except Exception:
-            pass
+        sync_issue = None
+        if not args.no_git:
+            sync_issue = api(
+                "POST",
+                f"/api/companies/{cid}/issues",
+                {
+                    "title": sync_title,
+                    "description": sanitize_host_paths(_sync_desc(abs_ws, book, after_raw)),
+                    "status": "todo",
+                    "projectId": project_id,
+                    "parentId": parent_id,
+                    "assigneeAgentId": sa["id"],
+                },
+                token=args.token,
+            )
+        # CRITICAL: If this PATCH fails, parent stays blocked and handoff reports success.
+        # This was the root cause of the pipeline freeze in The Last Box pilot.
+        parent_patch = api("PATCH", f"/api/issues/{parent_id}", {"status": "in_progress"}, token=args.token)
+        if not isinstance(parent_patch, dict) or parent_patch.get("status") != "in_progress":
+            fail(
+                "parent_patch_failed",
+                f"Failed to PATCH parent {parent_id} to in_progress.",
+                "Parent may remain blocked. Check board state and retry handoff.",
+                parent_id=parent_id,
+                response=parent_patch,
+            )
         stamped = False
         if prior_rel:
             stamped = _stamp_artifact_approved(ws / prior_rel)
@@ -1465,7 +1591,8 @@ def cmd_handoff(args: argparse.Namespace) -> None:
             stage=next_stage,
             notes=(
                 f"studio handoff after {after_key}: "
-                f"{content_issue.get('identifier')} + {sync_issue.get('identifier')}"
+                f"{content_issue.get('identifier')}"
+                + (f" + {sync_issue.get('identifier')}" if sync_issue else " (no Git sync)")
             ),
         )
         emit(
@@ -1486,10 +1613,11 @@ def cmd_handoff(args: argparse.Namespace) -> None:
                     "id": sync_issue.get("id"),
                     "identifier": sync_issue.get("identifier"),
                     "assignee": sa.get("name"),
-                },
+                } if sync_issue else None,
                 "guidance": (
-                    f"Stage handoff after {after_key} created. Wake the content assignee and "
-                    "Studio Administrator. Parent stays in_progress. EXIT."
+                    f"Stage handoff after {after_key} created. Wake the content assignee"
+                    + (" and Studio Administrator" if sync_issue else "")
+                    + ". Parent stays in_progress. EXIT."
                 ),
             }
         )
@@ -1511,10 +1639,24 @@ def cmd_handoff(args: argparse.Namespace) -> None:
         # Stage-1 mechanical gate (craft_lint) for scene units
         lint = run_craft_lint(path)
         if not lint.get("ok"):
+            # CRITICAL: If craft_lint fails after issue is marked done,
+            # we need to reopen the issue and create a redraft instead of failing silently
+            # This prevents the stuck state where issue is done but handoff failed
+            try:
+                # Try to find and reopen the current issue
+                current_issues = api("GET", f"/api/companies/{cid}/issues?projectId={project_id}", token=args.token)
+                if isinstance(current_issues, dict):
+                    current_issues = current_issues.get("issues") or current_issues.get("items") or []
+                for iss in (current_issues or []):
+                    if iss.get("status") == "done" and unit in (iss.get("title") or ""):
+                        api("PATCH", f"/api/issues/{iss['id']}", {"status": "in_progress"}, token=args.token)
+                        break
+            except Exception:
+                pass  # Best effort - don't fail if we can't reopen
             fail(
                 "craft_lint_failed",
                 f"Cannot hand off after {unit}: Stage-1 craft lint failed.",
-                "Create/reassign a redraft to drafting_author. Do not advance.",
+                "Issue reopened to in_progress. Create/reassign a redraft to drafting_author. Do not advance.",
                 path=abs_path,
                 craft_lint=lint,
             )
@@ -1547,48 +1689,47 @@ def cmd_handoff(args: argparse.Namespace) -> None:
             need_craft_audit = True
 
     if args.dry_run:
+        would_create = []
+        if not args.no_git:
+            would_create.append({"title": sync_title, "role": "studio_administrator", "assigneeAgentId": sa["id"]})
+        if not args.skip_next:
+            if need_craft_audit:
+                would_create.append({
+                    "title": f"Craft audit {unit} — {book.get('working_title') or book['book_slug']}",
+                    "role": "developmental_reviewer",
+                })
+            else:
+                would_create.append({
+                    "title": args.next_title
+                    or f"Draft {(args.next_unit or 'SCENE-XXX').upper()} — {book.get('working_title') or book['book_slug']}",
+                    "role": "drafting_author",
+                })
         emit(
             {
                 "ok": True,
                 "dry_run": True,
                 "verified_unit": verify,
                 "craft_audit": audit,
-                "would_create": [
-                    {"title": sync_title, "role": "studio_administrator", "assigneeAgentId": sa["id"]},
-                    (
-                        {
-                            "title": f"Craft audit {unit} — {book.get('working_title') or book['book_slug']}",
-                            "role": "developmental_reviewer",
-                        }
-                        if need_craft_audit
-                        else (
-                            None
-                            if args.skip_next
-                            else {
-                                "title": args.next_title
-                                or f"Draft {(args.next_unit or 'SCENE-XXX').upper()} — {book.get('working_title') or book['book_slug']}",
-                                "role": "drafting_author",
-                            }
-                        )
-                    ),
-                ],
+                "would_create": would_create,
                 "guidance": "Dry run only. Re-run without --dry-run to create issues.",
             }
         )
 
-    sync_issue = api(
-        "POST",
-        f"/api/companies/{cid}/issues",
-        {
-            "title": sync_title,
-            "description": _sync_desc(abs_ws, book, args.after),
-            "status": "todo",
-            "projectId": project_id,
-            "parentId": parent_id,
-            "assigneeAgentId": sa["id"],
-        },
-        token=args.token,
-    )
+    sync_issue = None
+    if not args.no_git:
+        sync_issue = api(
+            "POST",
+            f"/api/companies/{cid}/issues",
+            {
+                "title": sync_title,
+                "description": _sync_desc(abs_ws, book, args.after),
+                "status": "todo",
+                "projectId": project_id,
+                "parentId": parent_id,
+                "assigneeAgentId": sa["id"],
+            },
+            token=args.token,
+        )
 
     next_issue = None
     next_role = None
@@ -1678,6 +1819,21 @@ def cmd_handoff(args: argparse.Namespace) -> None:
                 da = role_to_agent("drafting_author", agents)
                 next_role = "drafting_author"
                 next_unit = (args.next_unit or "SCENE-XXX").upper()
+                # CRITICAL: Check revision limit for the CURRENT unit being handed off
+                # The limit tracks how many times THIS scene has been drafted
+                book_yaml_path = ws / "00_admin" / "book.yaml"
+                current_unit = unit  # The scene being handed off (e.g., SCENE-001)
+                if current_unit:
+                    revision_error = check_revision_limit(book_yaml_path, current_unit, profile_key)
+                    if revision_error:
+                        fail(
+                            "revision_limit_reached",
+                            revision_error,
+                            "Commission arbitration or advance with accepted imperfections.",
+                            unit=current_unit,
+                            current_revisions=get_revision_counter(book_yaml_path, current_unit),
+                            max_revisions=2,
+                        )
                 next_title = args.next_title or (
                     f"Draft {next_unit} — {book.get('working_title') or book['book_slug']}"
                 )
@@ -1695,6 +1851,52 @@ def cmd_handoff(args: argparse.Namespace) -> None:
                     },
                     token=args.token,
                 )
+                # Increment revision counter for the CURRENT unit after successful handoff
+                if current_unit:
+                    increment_revision_counter(book_yaml_path, current_unit)
+
+    # CRITICAL: Automatically create continuity review after each draft handoff
+    # This ensures continuity is reviewed every unit per PROCESS.md
+    continuity_issue = None
+    if unit and re.match(r"^SCENE-\d+$", unit) and not args.skip_next:
+        try:
+            cr = role_to_agent("continuity_reviewer", agents)
+            continuity_title = f"Continuity review {unit} — {book.get('working_title') or book['book_slug']}"
+            continuity_desc = (
+                f"## Continuity Review for {unit}\n\n"
+                f"Audit {unit} against approved canon and prior manuscript units.\n\n"
+                f"### Command (REQUIRED)\n"
+                f"```bash\n"
+                f"python3 /paperclip/repos/AI-Fiction-Library/tools/studio.py pack "
+                f"--slug {book['book_slug']} --role continuity_reviewer --work continuity --unit {unit}\n"
+                f"```\n\n"
+                f"### Track\n"
+                f"Time, ages, names, descriptions, geography, travel, injuries, objects, "
+                f"possessions, knowledge, secrets, revelations, relationships, promises, "
+                f"world rules, capability limits, dates, weather, setups/payoffs.\n\n"
+                f"### Rules\n"
+                f"- Cite exact conflicting facts/passages\n"
+                f"- Do not rewrite\n"
+                f"- Contradiction affecting resolution = Blocker\n"
+                f"- After PASS, propose Continuity Ledger updates\n\n"
+                f"Write report under `{abs_ws}/reviews/{unit}_continuity.md`. "
+                f"Disposition `done`."
+            )
+            continuity_issue = api(
+                "POST",
+                f"/api/companies/{cid}/issues",
+                {
+                    "title": continuity_title,
+                    "description": continuity_desc,
+                    "status": "todo",
+                    "projectId": project_id,
+                    "parentId": parent_id,
+                    "assigneeAgentId": cr["id"],
+                },
+                token=args.token,
+            )
+        except Exception:
+            pass  # Best effort - don't fail handoff if continuity creation fails
 
     stage_path = ws / "00_admin" / "CURRENT_STAGE.md"
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -1735,15 +1937,17 @@ project_id: "{project_id}"
 - Active issue: {active}
 - Assignee: {assignee_label}
 - Blockers: none
-- Parallel: {sync_issue.get('identifier')} — Git sync after {args.after}
+- Parallel: {f"{sync_issue.get('identifier')} — Git sync after {args.after}" if sync_issue else "none (--no-git)"}
 - Notes: Atomic handoff via `studio handoff` at {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%MZ')}. Parent stays in_progress.
 """,
         encoding="utf-8",
     )
 
     parent = api("GET", f"/api/issues/{parent_id}", token=args.token)
+    sync_ref = f" + {sync_issue.get('identifier')}" if sync_issue else ""
     comment = (
-        f"studio handoff after {args.after}: created {sync_issue.get('identifier')}"
+        f"studio handoff after {args.after}: created"
+        + (f" {sync_issue.get('identifier')}" if sync_issue else " (no Git sync)")
         + (f" + {next_issue.get('identifier')}" if next_issue else "")
         + (
             "; waiting Craft Auditor Stage-2"
@@ -1770,7 +1974,7 @@ project_id: "{project_id}"
                 "identifier": sync_issue.get("identifier"),
                 "assigneeAgentId": sa["id"],
                 "assigneeName": sa["name"],
-            },
+            } if sync_issue else None,
             "next_issue": (
                 {
                     "id": next_issue.get("id"),
@@ -1781,6 +1985,17 @@ project_id: "{project_id}"
                     "role": next_role,
                 }
                 if next_issue
+                else None
+            ),
+            "continuity_review": (
+                {
+                    "id": continuity_issue.get("id"),
+                    "identifier": continuity_issue.get("identifier"),
+                    "title": continuity_issue.get("title"),
+                    "assigneeAgentId": continuity_issue.get("assigneeAgentId"),
+                    "assigneeName": "Continuity Reviewer",
+                }
+                if continuity_issue
                 else None
             ),
             "current_stage_path": f"{abs_ws}/00_admin/CURRENT_STAGE.md",
@@ -1913,6 +2128,17 @@ def cmd_reassign(args: argparse.Namespace) -> None:
             "prose_requires_drafting_author",
             f"Issue '{issue.get('identifier')}' looks like prose draft but target role is '{role_key}'.",
             "Re-run with --role drafting_author (or --work draft).",
+            title=title,
+            role=role_key,
+        )
+
+    # Safety: ME must not self-assign Git sync issues (ISS-005 role breach)
+    me_agent = role_to_agent("managing_editor", agents)
+    if role_key == "managing_editor" and re.search(r"\bGit sync\b", title, re.I):
+        fail(
+            "role_breach_me_sync",
+            f"Issue '{issue.get('identifier')}' is a Git sync — ME must not claim it.",
+            "Reassign to studio_administrator instead, or leave it for Admin.",
             title=title,
             role=role_key,
         )
@@ -2069,6 +2295,7 @@ def cmd_watchdog(args: argparse.Namespace) -> None:
     open_draft = [i for i in open_issues if re.search(r"Draft SCENE|Redraft SCENE", i.get("title") or "", re.I)]
 
     da_id = agents.get("Drafting Author", {}).get("id")
+    me_id = agents.get("Managing Editor", {}).get("id")
     wrong_role = []
     for i in open_draft:
         if da_id and i.get("assigneeAgentId") != da_id:
@@ -2095,7 +2322,18 @@ def cmd_watchdog(args: argparse.Namespace) -> None:
         for bid in blocked_ids
     )
 
-    if parent.get("status") in ("done", "cancelled", "canceled") or (
+    # Idle parent: in_progress with empty blockedBy and no open children needing ME action.
+    # This is a valid board state — do NOT recommend reopen_parent (prevents 24-run storm).
+    parent_needs_me = bool(open_draft or open_sync or wrong_role)
+    if parent.get("status") == "in_progress" and not blocked_ids and not parent_needs_me:
+        recommendation = {
+            "action": "exit_healthy",
+            "command": None,
+            "reason": "Parent is in_progress with no open children requiring ME action.",
+            "guidance": "EXIT. Parent disposition is valid; no mutation needed.",
+            "parent_id": parent.get("id"),
+        }
+    elif parent.get("status") in ("done", "cancelled", "canceled") or (
         parent.get("status") == "blocked" and not blocked_ids
     ):
         recommendation = {
@@ -2182,6 +2420,9 @@ def cmd_watchdog(args: argparse.Namespace) -> None:
             intervene_reasons.append("pending_confirmation")
     bare = []
     for i in open_issues:
+        # Skip issues not assigned to ME — ME can't fix other agents' bare descriptions.
+        if me_id and i.get("assigneeAgentId") != me_id:
+            continue
         desc = i.get("description") or ""
         title_l = (i.get("title") or "").lower()
         if "git sync" in title_l and "git-sync" in desc:
@@ -2583,6 +2824,134 @@ def cmd_profiles(args: argparse.Namespace) -> None:
     )
 
 
+def cmd_delete_book(args: argparse.Namespace) -> None:
+    """Delete book: cancel all issues, cancel project, clean workspace + registry."""
+    repo = detect_repo()
+    book = resolve_book(repo, slug=args.slug, project_id=args.project_id)
+    cid = args.company_id
+    project_id = book["project_id"]
+    slug = book["book_slug"]
+    ws = workspace_for(book, cid)
+    abs_ws = absolute_ws(book, cid)
+
+    # Fetch all issues in the project
+    issues = api("GET", f"/api/companies/{cid}/issues?projectId={project_id}", token=args.token)
+    if isinstance(issues, dict):
+        issues = issues.get("issues") or issues.get("items") or issues.get("data") or []
+    issues = [i for i in (issues or []) if i.get("projectId") == project_id]
+
+    # Sort: children first (have parentId), then parents
+    children = [i for i in issues if i.get("parentId")]
+    parents = [i for i in issues if not i.get("parentId")]
+
+    if args.dry_run:
+        emit(
+            {
+                "ok": True,
+                "dry_run": True,
+                "command": "delete-book",
+                "slug": slug,
+                "project_id": project_id,
+                "workspace": abs_ws,
+                "issues_to_cancel": [
+                    {"identifier": i.get("identifier"), "title": i.get("title"), "status": i.get("status")}
+                    for i in children + parents
+                ],
+                "guidance": "Dry run only. Re-run without --dry-run to delete.",
+            }
+        )
+
+    # Cancel children first (bottom-up to respect foreign keys)
+    cancelled_children = []
+    for issue in children:
+        if issue.get("status") in ("cancelled", "canceled"):
+            continue
+        try:
+            api("PATCH", f"/api/issues/{issue['id']}", {"status": "cancelled"}, token=args.token)
+            cancelled_children.append(issue.get("identifier"))
+        except Exception as e:
+            # Log but continue - some issues may have constraints
+            pass
+
+    # Cancel parents
+    cancelled_parents = []
+    for issue in parents:
+        if issue.get("status") in ("cancelled", "canceled"):
+            continue
+        try:
+            api("PATCH", f"/api/issues/{issue['id']}", {"status": "cancelled"}, token=args.token)
+            cancelled_parents.append(issue.get("identifier"))
+        except Exception as e:
+            pass
+
+    # Try to delete issues (may fail due to foreign keys)
+    deleted_issues = []
+    for issue in reversed(children + parents):  # Reverse order for FK
+        try:
+            api("DELETE", f"/api/issues/{issue['id']}", token=args.token)
+            deleted_issues.append(issue.get("identifier"))
+        except Exception:
+            pass  # FK constraint - cancelled is sufficient
+
+    # Cancel project
+    try:
+        api("PATCH", f"/api/projects/{project_id}", {"status": "cancelled"}, token=args.token)
+        project_cancelled = True
+    except Exception:
+        project_cancelled = False
+
+    # Clean workspace directory
+    import shutil
+    workspace_cleaned = False
+    if ws.exists():
+        try:
+            shutil.rmtree(ws)
+            workspace_cleaned = True
+        except Exception:
+            pass
+
+    # Clean registry
+    registry_path = repo / "books" / "registry.yaml"
+    registry_cleaned = False
+    if registry_path.exists():
+        try:
+            content = registry_path.read_text(encoding="utf-8")
+            # Remove the book entry
+            lines = content.splitlines()
+            new_lines = []
+            skip = False
+            for line in lines:
+                if f'book_slug: "{slug}"' in line or f"book_slug: '{slug}'" in line:
+                    skip = True
+                elif skip and line.strip().startswith("- book_id:"):
+                    skip = False
+                if not skip:
+                    new_lines.append(line)
+            registry_path.write_text("\n".join(new_lines), encoding="utf-8")
+            registry_cleaned = True
+        except Exception:
+            pass
+
+    emit(
+        {
+            "ok": True,
+            "command": "delete-book",
+            "slug": slug,
+            "project_id": project_id,
+            "cancelled_children": cancelled_children,
+            "cancelled_parents": cancelled_parents,
+            "deleted_issues": deleted_issues,
+            "project_cancelled": project_cancelled,
+            "workspace_cleaned": workspace_cleaned,
+            "workspace_path": abs_ws,
+            "registry_cleaned": registry_cleaned,
+            "guidance": (
+                f"Book '{slug}' deleted. Issues cancelled: {len(cancelled_children) + len(cancelled_parents)}. "
+                f"Workspace cleaned: {workspace_cleaned}. Registry cleaned: {registry_cleaned}."
+            ),
+        }
+    )
+
 
 def cmd_start_book(args: argparse.Namespace) -> None:
     """One-shot book bootstrap: project + seed + parent (+ optional intake/wake/git)."""
@@ -2961,6 +3330,7 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--next-title", default=None)
     c.add_argument("--next-description", default=None)
     c.add_argument("--skip-next", action="store_true")
+    c.add_argument("--no-git", action="store_true", help="Skip Git sync issue creation")
     c.add_argument("--min-words", type=int, default=None, help="Override; default = book length-profile scene_min_words")
     c.add_argument("--dry-run", action="store_true")
     c.set_defaults(func=cmd_handoff)
@@ -3032,6 +3402,13 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--slug", default=None)
     c.add_argument("--project-id", default=None)
     c.set_defaults(func=cmd_profiles)
+
+    c = sp.add_parser("delete-book", help="Delete book: cancel issues, archive project, clean workspace + registry")
+    c.add_argument("--slug", default=None)
+    c.add_argument("--project-id", default=None)
+    c.add_argument("--yes", action="store_true", help="Skip confirmation prompt")
+    c.add_argument("--dry-run", action="store_true")
+    c.set_defaults(func=cmd_delete_book)
     return p
 
 

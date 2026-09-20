@@ -10,23 +10,23 @@ This front page tracks **books and progress only**. Studio process docs live und
 Auto-generated from each book's `book.yaml` + `books/registry.yaml`.
 Do not edit inside the AUTO-PROGRESS markers.
 
-### Now reading: The Last Box
+### Now reading: The Potion Maker
 
 - **Format:** short_story
-- **Stage:** Premise Package (25%)
+- **Stage:** Intake (8%)
 - **Manuscript words:** 93
-- **Path:** [`books/the-last-box/`](books/the-last-box/)
-- **Last synced:** 2026-09-19T01:27Z
+- **Path:** [`books/the-potion-maker/`](books/the-potion-maker/)
+- **Last synced:** 2026-09-20T01:55Z
 
 #### Stage timeline
 
-✅ Intake → ✅ Creative Brief → **▶ Premise Package** → ⬜ Story Bible + Ending → ⬜ Beat Sheet → ⬜ Scene Outline → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
+**▶ Intake** → ⬜ Creative Brief → ⬜ Premise Package → ⬜ Story Bible + Ending → ⬜ Beat Sheet → ⬜ Scene Outline → ⬜ Drafting → ⬜ Full-draft Review → ⬜ Developmental Revision → ⬜ Line Edit → ⬜ Final Audit → ⬜ Release
 
 ### In progress
 
 | Book | Format | Stage | Progress | Words | Scenes | Path |
 |---|---|---|---:|---:|---:|---|
-| The Last Box | short_story | Premise Package | 25% | 93 | 0 | [`books/the-last-box/`](books/the-last-box/) |
+| The Potion Maker | short_story | Intake | 8% | 93 | 0 | [`books/the-potion-maker/`](books/the-potion-maker/) |
 
 ### Completed
 

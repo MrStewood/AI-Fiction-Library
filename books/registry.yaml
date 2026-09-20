@@ -9,10 +9,11 @@ books:
     book_root: "books/the-potion-maker"
     project_id: "5626ae22-e62c-452b-97c9-3e03186e4439"
     format: "short_story"
-    workflow_profile: "short_story"
-    controlled_test: true
-    project_status: "seeded"
+    project_status: "active"
+    current_stage: "intake"
     studio_version: "0.1.0"
     series_id: null
     created_date: "2026-09-19"
+    manuscript_word_count: 93
+    last_synced_at: "2026-09-20T01:55Z"
     current_approved_commit: null

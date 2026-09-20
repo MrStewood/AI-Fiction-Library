@@ -16,7 +16,7 @@ Do not edit inside the AUTO-PROGRESS markers.
 - **Stage:** Scene Outline (50%)
 - **Manuscript words:** 93
 - **Path:** [`books/the-potion-maker/`](books/the-potion-maker/)
-- **Last synced:** 2026-09-20T02:38Z
+- **Last synced:** 2026-09-20T02:43Z
 
 #### Stage timeline
 
